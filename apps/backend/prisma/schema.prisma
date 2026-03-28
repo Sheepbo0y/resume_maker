@@ -1,6 +1,6 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 generator client {
@@ -22,7 +22,7 @@ model ResumeDraft {
   user      User   @relation(fields: [userId], references: [id])
   title     String?
   // Store the full JSON Resume as a single JSON field
-  resumeJson Json?
+  resumeJson String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
