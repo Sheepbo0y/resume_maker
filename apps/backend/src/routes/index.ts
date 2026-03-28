@@ -15,9 +15,9 @@ router.get('/health', (req, res) => {
 router.post('/auth/register', validateRegistration, (req, res, next) => authController.register(req, res, next));
 router.post('/auth/login', validateLogin, (req, res, next) => authController.login(req, res, next));
 
-// Protected resumes routes
 router.get('/resumes', authMiddleware, (req, res, next) => resumeController.list(req, res, next));
 router.post('/resumes', authMiddleware, validateResume, (req, res, next) => resumeController.create(req, res, next));
 router.put('/resumes/:id', authMiddleware, validateResume, (req, res, next) => resumeController.update(req, res, next));
+router.delete('/resumes/:id', authMiddleware, (req, res, next) => resumeController.delete(req, res, next));
 
 export default router;
