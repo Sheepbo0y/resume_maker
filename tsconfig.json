@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  },
+  "include": [
+    "apps/frontend/**/*",
+    "apps/backend/**/*",
+    "common/**/*",
+    "docs/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "build"]
+}

@@ -1,0 +1,28 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int           @id @default(autoincrement())
+  email     String        @unique
+  password  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  resumes   ResumeDraft[]
+}
+
+model ResumeDraft {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  title     String?
+  // Store the full JSON Resume as a single JSON field
+  resumeJson Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

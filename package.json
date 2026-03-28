@@ -1,0 +1,14 @@
+{
+  "name": "resume-maker",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev": "npm run -w frontend dev && npm run -w backend dev",
+    "build": "npm run -w frontend build && npm run -w backend build"
+  },
+  "type": "module"
+}

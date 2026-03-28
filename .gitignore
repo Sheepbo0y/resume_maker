@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+.DS_Store
+
+# Frontend/Backend specific ignores
+apps/frontend/node_modules/
+apps/frontend/dist/
+apps/backend/node_modules/
+apps/backend/dist/
+
+# Global ignore
+coverage/
+.vite/

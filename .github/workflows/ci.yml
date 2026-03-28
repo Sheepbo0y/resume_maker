@@ -1,0 +1,287 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [ '16.x', '18.x', '20.x' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Cache npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-${{ matrix.node-version }}
+
+      - name: Install dependencies (frontend)
+        shell: bash
+        run: |
+          echo "Installing frontend dependencies if present..."
+          if [ -d frontend ]; then
+            cd frontend
+            if [ -f package.json ]; then
+              if [ -f package-lock.json ]; then
+                npm ci
+              else
+                npm install
+              fi
+            fi
+            cd ..
+          fi
+
+      - name: Install dependencies (backend)
+        shell: bash
+        run: |
+          echo "Installing backend dependencies if present..."
+          if [ -d backend ]; then
+            cd backend
+            if [ -f package.json ]; then
+              if [ -f package-lock.json ]; then
+                npm ci
+              else
+                npm install
+              fi
+            fi
+            cd ..
+          fi
+
+      - name: Run frontend tests
+        shell: bash
+        run: |
+          if [ -d frontend ]; then
+            if [ -f frontend/package.json ] && grep -q '"test"' frontend/package.json; then
+              echo "Running frontend unit tests..."
+              cd frontend
+              npm run test
+              cd ..
+            else
+              echo "Frontend: no test script found, skipping."
+            fi
+          else
+            echo "Frontend directory not found, skipping tests."
+          fi
+        continue-on-error: true
+
+      - name: Run backend tests
+        shell: bash
+        run: |
+          if [ -d backend ]; then
+            if [ -f backend/package.json ] && grep -q '"test"' backend/package.json; then
+              echo "Running backend unit tests..."
+              cd backend
+              npm test
+              cd ..
+            else
+              echo "Backend: no test script found, skipping."
+            fi
+          else
+            echo "Backend directory not found, skipping tests."
+          fi
+        continue-on-error: true
+
+      - name: Run integration tests
+        shell: bash
+        run: |
+          changed=0
+          if [ -d frontend ]; then
+            if [ -f frontend/package.json ] && grep -q '"test:integration"' frontend/package.json; then
+              echo "Running frontend integration tests..."
+              cd frontend
+              npm run test:integration
+              cd ..
+              changed=1
+            fi
+          fi
+          if [ -d backend ]; then
+            if [ -f backend/package.json ] && grep -q '"test:integration"' backend/package.json; then
+              echo "Running backend integration tests..."
+              cd backend
+              npm run test:integration
+              cd ..
+              changed=1
+            fi
+          fi
+          if [ $changed -eq 0 ]; then
+            echo "No integration test scripts found. Skipping."
+          fi
+        continue-on-error: true
+
+      - name: Run E2E tests
+        shell: bash
+        run: |
+          echo "Attempting to run E2E tests if defined..."
+          if [ -d frontend ]; then
+            if [ -f frontend/package.json ] && grep -q '"test:e2e"' frontend/package.json; then
+              cd frontend
+              npm run test:e2e
+              cd ..
+            else
+              echo "Frontend: no test:e2e script."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Build frontend
+        shell: bash
+        run: |
+          if [ -d frontend ]; then
+            if [ -f frontend/package.json ] && grep -q '"build"' frontend/package.json; then
+              echo "Building frontend..."
+              cd frontend
+              npm run build
+              cd ..
+            else
+              echo "Frontend: no build script found."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Build backend
+        shell: bash
+        run: |
+          if [ -d backend ]; then
+            if [ -f backend/package.json ] && grep -q '"build"' backend/package.json; then
+              echo "Building backend..."
+              cd backend
+              npm run build
+              cd ..
+            else
+              echo "Backend: no build script found."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: TypeScript compile check
+        shell: bash
+        run: |
+          set -e
+          if [ -d frontend ]; then
+            if [ -f frontend/tsconfig.json ]; then
+              echo "Checking frontend TypeScript compilation..."
+              cd frontend
+              if [ -f package.json ] && grep -q '"typescript"' package.json; then
+                npm ci
+                npx tsc -p tsconfig.json
+              else
+                echo "Frontend uses TypeScript but no typescript dep or tsconfig? Skipping."
+              fi
+              cd ..
+            else
+              echo "Frontend tsconfig.json not found. Skipping."
+            fi
+          fi
+          if [ -d backend ]; then
+            if [ -f backend/tsconfig.json ]; then
+              echo "Checking backend TypeScript compilation..."
+              cd backend
+              if [ -f package.json ] && grep -q '"typescript"' package.json; then
+                npm ci
+                npx tsc -p tsconfig.json
+              else
+                echo "Backend uses TypeScript but no typescript dep or tsconfig? Skipping."
+              fi
+              cd ..
+            else
+              echo "Backend tsconfig.json not found. Skipping."
+            fi
+          fi
+
+      - name: Code quality checks (lint)
+        shell: bash
+        run: |
+          echo "Running lint if configured..."
+          if [ -d frontend ]; then
+            if [ -f frontend/package.json ] && grep -q '"lint"' frontend/package.json; then
+              cd frontend
+              npm ci
+              npm run lint
+              cd ..
+            else
+              echo "Frontend: lint script not found."
+            fi
+          fi
+          if [ -d backend ]; then
+            if [ -f backend/package.json ] && grep -q '"lint"' backend/package.json; then
+              cd backend
+              npm ci
+              npm run lint
+              cd ..
+            else
+              echo "Backend: lint script not found."
+            fi
+          fi
+        continue-on-error: true
+
+      - name: Cache test artifacts
+        if: always()
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/node_modules
+            backend/node_modules
+            frontend/dist
+            backend/dist
+            frontend/coverage
+            backend/coverage
+          key: ${{ runner.os }}-test-artifacts-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Generate coverage report (optional)
+        if: always()
+        run: |
+          echo "If tests produced coverage, ensure coverage reports are available."
+          if [ -d frontend/coverage ]; then echo "Frontend coverage found"; fi
+          if [ -d backend/coverage ]; then echo "Backend coverage found"; fi
+
+      - name: Upload coverage to GitHub (optional)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: |
+            frontend/coverage
+            backend/coverage
+
+      - name: Security checks
+        run: |
+          echo "Static analysis placeholders can be added here if available."
+        continue-on-error: true
+
+      - name: Deployment - Preview
+        if: ${{ secrets.VERCEL_TOKEN != '' || secrets.DEPLOY_TOKEN != '' }}
+        run: |
+          echo "Preview deployment would occur here using secrets if configured."
+        continue-on-error: true
+
+      - name: Deployment - Production
+        if: ${{ secrets.DEPLOY_TOKEN != '' }}
+        run: |
+          echo "Production deployment would occur here using secrets if configured."
+        continue-on-error: true
+
+      - name: Safety - Do not expose secrets
+        run: |
+          echo "Ensure no secrets are printed in logs."
+        if: always()

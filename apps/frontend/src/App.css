@@ -1,0 +1,7 @@
+.layout-root { min-height: 100vh; display: flex; flex-direction: column; }
+.layout-content { flex: 1; padding: 16px; }
+.app-header { padding: 12px 0; }
+.container { max-width: 960px; margin: 0 auto; }
+.logo { font-weight: 700; }
+.nav a { margin-left: 12px; }
+.page { padding: 16px; }
