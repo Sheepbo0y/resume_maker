@@ -10,5 +10,9 @@
     "dev": "npm run -w frontend dev && npm run -w backend dev",
     "build": "npm run -w frontend build && npm run -w backend build"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "puppeteer": "^24.40.0"
+  }
 }
