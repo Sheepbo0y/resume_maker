@@ -3,23 +3,44 @@ import { PrismaClient } from '@prisma/client';
 export class ResumeService {
   private prisma = new PrismaClient();
 
-  async list() {
-    return [];
+  async list(userId: number) {
+    return this.prisma.resumeDraft.findMany({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+    });
   }
 
-  async create(input: any) {
-    return { id: 1, ...input };
-  }
-
-  async update(id: number, input: any) {
-    const payload = input?.resumeJson ?? input;
-    return this.prisma.resumeDraft.upsert({
-      where: { id: Number(id) },
-      update: { resumeJson: payload },
-      create: {
-        userId: 1,
-        resumeJson: payload,
+  async create(userId: number, input: any) {
+    const { title, resumeJson } = input;
+    return this.prisma.resumeDraft.create({
+      data: {
+        userId,
+        title: title || 'Untitled Resume',
+        resumeJson: JSON.stringify(resumeJson || {}),
       },
+    });
+  }
+
+  async update(id: number, userId: number, input: any) {
+    const { title, resumeJson } = input;
+    return this.prisma.resumeDraft.update({
+      where: { id, userId },
+      data: {
+        title,
+        resumeJson: JSON.stringify(resumeJson || {}),
+      },
+    });
+  }
+
+  async findById(id: number, userId: number) {
+    return this.prisma.resumeDraft.findFirst({
+      where: { id, userId },
+    });
+  }
+
+  async delete(id: number, userId: number) {
+    return this.prisma.resumeDraft.delete({
+      where: { id, userId },
     });
   }
 }
