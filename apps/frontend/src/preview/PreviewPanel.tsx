@@ -1,17 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import type { ResumeData } from './types'
-import { PreviewContainer } from './PreviewContainer'
-import PreviewControls from './PreviewControls'
 import { TemplateKey } from './types'
-
-import { ClassicProfessionalTemplate, ModernMinimalTemplate, CreativeSimpleTemplate, TemplateRegistry } from './templates'
+import { TemplateRegistry } from './templates'
 
 type Props = {
   resume: ResumeData
   initialTemplate?: TemplateKey
 }
 
-// Debounce helper inside the panel to ensure 500ms update latency
 function useDebouncedValue<T>(value: T, delay: number) {
   const [debounced, setDebounced] = useState<T>(value)
   useEffect(() => {
@@ -21,84 +17,172 @@ function useDebouncedValue<T>(value: T, delay: number) {
   return debounced
 }
 
-const PreviewPanel: React.FC<Props> = ({ resume, initialTemplate = 'ClassicProfessional' }) => {
+const templateOptions: { key: TemplateKey; label: string; category: string; emoji: string }[] = [
+  { key: 'ClassicProfessional', label: '经典专业', category: '国际', emoji: '📄' },
+  { key: 'ModernMinimal', label: '现代简约', category: '国际', emoji: '✨' },
+  { key: 'CreativeSimple', label: '创意简洁', category: '国际', emoji: '🎨' },
+  { key: 'ChineseFreshGrad', label: '应届生', category: '中国', emoji: '🎓' },
+  { key: 'ChineseSocial', label: '社招', category: '中国', emoji: '💼' },
+  { key: 'ChineseCreative', label: '创意设计', category: '中国', emoji: '🚀' },
+]
+
+const PreviewPanel: React.FC<Props> = ({ resume, initialTemplate = 'ChineseFreshGrad' }) => {
   const [template, setTemplate] = useState<TemplateKey>(initialTemplate)
-  const [scale, setScale] = useState<number>(1)
+  const [scale, setScale] = useState<number>(0.6)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
-  const [showToast, setShowToast] = useState<string>('')
 
-  // Debounced resume to drive the live preview with 500ms debounce
-  const debouncedResume = useDebouncedValue<ResumeData>(resume, 500)
+  const debouncedResume = useDebouncedValue<ResumeData>(resume, 300)
 
-  // Handlers
-  const handleTemplateChange = (t: TemplateKey) => {
-    setTemplate(t)
-  }
-  const handleScaleChange = (s: number) => {
-    setScale(s)
-  }
-  const handlePrintPreview = () => {
-    // Placeholder: do not trigger actual print
-    const msg = 'Print Preview is a placeholder in this implementation.'
-    setShowToast(msg)
-    window.setTimeout(() => setShowToast(''), 1500)
-  }
-  const handleToggleFullscreen = () => {
-    setFullscreen((f) => !f)
-  }
+  const TemplateComponent = TemplateRegistry[template]
 
-  // Inline wrapper styles for fullscreen mode
-  const wrapperStyle: React.CSSProperties = fullscreen
-    ? {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: 16,
-        background: '#fff',
-        zIndex: 9999,
-        overflow: 'auto',
-      }
-    : { display: 'inline-block' as const, padding: 8 }
-
-  // Compute the current template element to render via internal registry
-  const content = useMemo(() => {
-    switch (template) {
-      case 'ModernMinimal':
-        return <ModernMinimalTemplate resume={debouncedResume} />
-      case 'CreativeSimple':
-        return <CreativeSimpleTemplate resume={debouncedResume} />
-      case 'ClassicProfessional':
-      default:
-        return <ClassicProfessionalTemplate resume={debouncedResume} />
-    }
-  }, [template, debouncedResume])
-
-  // Build the actual container with scaling and content
   return (
-    <section aria-label="Live Preview" style={{ padding: 8 }}>
-      <h3 style={{ margin: '8px 0' }}>实时预览</h3>
-      <PreviewControls
-        template={template}
-        onTemplateChange={handleTemplateChange}
-        scale={scale}
-        onScaleChange={handleScaleChange}
-        onPrintPreview={handlePrintPreview}
-        onToggleFullscreen={handleToggleFullscreen}
-        isFullscreen={fullscreen}
-      />
-      <div style={{ marginTop: 12, ...wrapperStyle }}>
-        <div style={{ width: fullscreen ? 'min(1000px, 90vw)' : '100%', border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: '#fff' }}>
-          <div style={{ display: 'inline-block' }}>{content}</div>
+    <div style={{
+      background: fullscreen ? '#1a1a2e' : 'transparent',
+      position: fullscreen ? 'fixed' : 'relative',
+      top: fullscreen ? 0 : 'auto',
+      left: fullscreen ? 0 : 'auto',
+      right: fullscreen ? 0 : 'auto',
+      bottom: fullscreen ? 0 : 'auto',
+      zIndex: fullscreen ? 9999 : 1,
+      padding: fullscreen ? '20px' : 0,
+      overflow: 'auto',
+    }}>
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '20px',
+        marginBottom: '16px',
+        boxShadow: '0 10px 40px rgba(102, 126, 234, 0.3)',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{
+            margin: 0,
+            color: '#fff',
+            fontSize: '18px',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            👁️ 实时预览
+          </h3>
+          <button
+            onClick={() => setFullscreen(!fullscreen)}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: '#fff',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '13px',
+              transition: 'all 0.2s',
+            }}
+          >
+            {fullscreen ? '✕ 退出全屏' : '⛶ 全屏预览'}
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500', padding: '6px 0' }}>国际模板:</span>
+          {templateOptions.filter(t => t.category === '国际').map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTemplate(t.key)}
+              style={{
+                background: template === t.key ? '#fff' : 'rgba(255,255,255,0.15)',
+                color: template === t.key ? '#667eea' : '#fff',
+                border: 'none',
+                padding: '8px 14px',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '13px',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+          <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500', padding: '6px 0' }}>中国模板:</span>
+          {templateOptions.filter(t => t.category === '中国').map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTemplate(t.key)}
+              style={{
+                background: template === t.key ? '#fff' : 'rgba(255,255,255,0.15)',
+                color: template === t.key ? '#667eea' : '#fff',
+                border: 'none',
+                padding: '8px 14px',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '13px',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>缩放:</span>
+          {[0.4, 0.5, 0.6, 0.75, 1].map((s) => (
+            <button
+              key={s}
+              onClick={() => setScale(s)}
+              style={{
+                background: scale === s ? '#fff' : 'rgba(255,255,255,0.15)',
+                color: scale === s ? '#667eea' : '#fff',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '12px',
+                transition: 'all 0.2s',
+              }}
+            >
+              {Math.round(s * 100)}%
+            </button>
+          ))}
         </div>
       </div>
-      {showToast && (
-        <div role="status" aria-live="polite" style={{ position: 'fixed', bottom: 20, left: 20, background: '#111827', color: '#fff', padding: '8px 12px', borderRadius: 6 }}>
-          {showToast}
+
+      <div style={{
+        background: '#f0f0f0',
+        borderRadius: '16px',
+        padding: fullscreen ? '40px' : '20px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: fullscreen ? 'center' : 'flex-start',
+        minHeight: fullscreen ? 'calc(100vh - 200px)' : '500px',
+        overflow: 'auto',
+      }}>
+        <div style={{
+          transform: `scale(${scale})`,
+          transformOrigin: 'top center',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          background: '#fff',
+          maxWidth: '800px',
+        }}>
+          <TemplateComponent resume={debouncedResume} />
         </div>
-      )}
-    </section>
+      </div>
+    </div>
   )
 }
 
