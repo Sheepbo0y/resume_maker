@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import PdfService from '../services/pdfService';
-import { renderTemplate } from '../services/templateRenderer';
-import { JsonResume } from '../types/resume';
+import PdfService from '../services/pdfService.js';
+import { renderTemplate } from '../services/templateRenderer.js';
+import { JsonResume } from '../types/resume.js';
 
 // Simple controller to export resume as PDF
 export async function exportPDF(req: Request, res: Response) {
