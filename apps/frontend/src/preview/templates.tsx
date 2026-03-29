@@ -1,5 +1,14 @@
 import React from 'react'
 import type { ResumeData } from '../forms/types'
+import { MinimalistTemplate as TopjianliMinimalistTemplate } from './templates/TopjianliMinimalist'
+import { ShanghaiTemplate } from './templates/TopjianliShanghai'
+import { TopjianliCreativeTemplate } from './templates/TopjianliCreative'
+import { GreenSimpleTemplate } from './templates/GreenSimple'
+import { BorderedCleanTemplate } from './templates/BorderedClean'
+import { RedModernTemplate } from './templates/RedModern'
+import { ChineseProfessionalTemplate } from './templates/ChineseProfessional'
+import { TealEnergeticTemplate } from './templates/TealEnergetic'
+import { RedClassicTemplate } from './templates/RedClassic'
 
 type TemplateProps = { resume: ResumeData }
 
@@ -1317,9 +1326,14 @@ export const ChineseCreativeTemplate: React.FC<TemplateProps> = ({ resume }) => 
 
 export const TemplateRegistry = {
   ClassicProfessional: ClassicProfessionalTemplate,
-  ModernMinimal: ModernMinimalTemplate,
-  CreativeSimple: CreativeSimpleTemplate,
-  ChineseFreshGrad: ChineseFreshGradTemplate,
   ChineseSocial: ChineseSocialTemplate,
-  ChineseCreative: ChineseCreativeTemplate,
+  TopjianliMinimalist: TopjianliMinimalistTemplate,
+  TopjianliShanghai: ShanghaiTemplate,
+  TopjianliCreative: TopjianliCreativeTemplate,
+  GreenSimple: GreenSimpleTemplate,
+  BorderedClean: BorderedCleanTemplate,
+  RedModern: RedModernTemplate,
+  ChineseProfessional: ChineseProfessionalTemplate,
+  TealEnergetic: TealEnergeticTemplate,
+  RedClassic: RedClassicTemplate,
 } as const
