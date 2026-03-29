@@ -21,7 +21,7 @@ model ResumeDraft {
   userId    Int
   user      User   @relation(fields: [userId], references: [id])
   title     String?
-  // Store the full JSON Resume as a single JSON field
+  // Store the full JSON Resume as a single JSON field (stored as String in SQLite)
   resumeJson String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { isResumeDataValid, isTemplateNameValid } from '../validators';
-import { ApiError } from '../../errors/ApiError';
+import { isResumeDataValid, isTemplateNameValid } from '../validators.js';
+import { ApiError } from '../../errors/ApiError.js';
 
 export function validatePdfExport(req: Request, res: Response, next: NextFunction) {
   const { resume, template = 'default' } = req.body || {};

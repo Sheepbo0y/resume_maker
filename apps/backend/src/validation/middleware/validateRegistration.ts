@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { isEmailValid, isPasswordStrong } from '../validators';
-import { ApiError } from '../../errors/ApiError';
+import { isEmailValid, isPasswordStrong } from '../validators.js';
+import { ApiError } from '../../errors/ApiError.js';
 
 // Validation middleware for user registration
 export function validateRegistration(req: Request, res: Response, next: NextFunction) {

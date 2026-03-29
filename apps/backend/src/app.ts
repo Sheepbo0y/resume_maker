@@ -1,9 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
-import routes from './routes/index';
-import { errorMiddleware } from './middleware/errorMiddleware';
-import { securityHeaders } from './middleware/securityHeaders';
-import rateLimiter from './middleware/rateLimiter';
-import { sanitizeInput } from './middleware/inputSanitizer';
+import routes from './routes/index.js';
+import { errorMiddleware } from './middleware/errorMiddleware.js';
+import { securityHeaders } from './middleware/securityHeaders.js';
+import rateLimiter from './middleware/rateLimiter.js';
+import { sanitizeInput } from './middleware/inputSanitizer.js';
 
 const app = express();
 

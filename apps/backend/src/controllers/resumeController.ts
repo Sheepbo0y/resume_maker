@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ResumeService } from '../services/resumeService';
+import { ResumeService } from '../services/resumeService.js';
 
 export class ResumeController {
   private resumeService = new ResumeService();

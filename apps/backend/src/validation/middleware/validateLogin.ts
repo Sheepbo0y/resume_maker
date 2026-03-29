@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { isEmailValid } from '../validators';
-import { ApiError } from '../../errors/ApiError';
+import { isEmailValid } from '../validators.js';
+import { ApiError } from '../../errors/ApiError.js';
 
 export function validateLogin(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body || {};

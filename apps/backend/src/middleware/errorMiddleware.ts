@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import ApiError from '../errors/ApiError';
+import ApiError from '../errors/ApiError.js';
 
 export function errorMiddleware(err: any, req: Request, res: Response, next: NextFunction) {
   // Custom API errors

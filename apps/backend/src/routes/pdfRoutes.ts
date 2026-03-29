@@ -1,7 +1,7 @@
 import express from 'express';
-import { exportPDF } from '../controllers/pdfController';
-import { authMiddleware } from '../middleware/auth';
-import validatePdfExport from '../validation/middleware/validatePdfExport';
+import { exportPDF } from '../controllers/pdfController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import validatePdfExport from '../validation/middleware/validatePdfExport.js';
 
 const router = express.Router();
 

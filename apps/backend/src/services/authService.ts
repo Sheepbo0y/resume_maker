@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import authConfig from '../config/auth';
+import authConfig from '../config/auth.js';
 
 export class AuthService {
   private prisma = new PrismaClient();

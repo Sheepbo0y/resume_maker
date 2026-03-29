@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/authService';
+import { AuthService } from '../services/authService.js';
 
 // Simple Bearer token authentication middleware
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
